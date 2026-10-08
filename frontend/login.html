@@ -1,0 +1,98 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Login | Roundhouse Volunteer Hub</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+
+</head>
+
+
+<body class="d-flex flex-column">
+
+    <div class="page page-center">
+
+        <div class="container container-tight py-4">
+
+            <div class="text-center mb-4">
+
+                <h1>
+                    Roundhouse Volunteer Hub
+                </h1>
+
+            </div>
+
+
+            <form class="card card-md"
+                  action="/auth/login"
+                  method="POST">
+
+                <div class="card-body">
+
+                    <h2 class="h2 text-center mb-4">
+                        Login to your account
+                    </h2>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Email address
+                        </label>
+
+                        <input type="email"
+                               name="email"
+                               class="form-control"
+                               placeholder="admin@roundhouse.com"
+                               required>
+
+                    </div>
+
+
+                    <div class="mb-2">
+
+                        <label class="form-label">
+                            Password
+                        </label>
+
+                        <input type="password"
+                               name="password"
+                               class="form-control"
+                               placeholder="Password"
+                               required>
+
+                    </div>
+
+
+                    <div class="form-footer">
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Sign in
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js">
+    </script>
+
+</body>
+
+</html>
