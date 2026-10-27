@@ -5,7 +5,10 @@ const session = require("express-session");
 const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
-const requireAuth = require("./middleware/authMiddleware");
+const {
+    requireStaff,
+    requireVolunteer
+} = require("./middleware/authMiddleware");
 
 const app = express();
 
@@ -43,8 +46,12 @@ app.get("/login", (req, res) => {
 
 
 // Dashboard - protected
-app.get("/", requireAuth, (req, res) => {
+app.get("/", requireStaff, (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
+});
+
+app.get("/volunteer", requireVolunteer, (req, res) => {
+    res.send("Volunteer dashboard coming next");
 });
 
 

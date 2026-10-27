@@ -5,7 +5,12 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
     class StaffUser extends Model {
         static associate(models) {
-            // Relationships can be added later
+            StaffUser.hasMany(models.Announcement, {
+                foreignKey: 'created_by',
+                as: 'announcements',
+                onDelete: 'SET NULL',
+                onUpdate: 'CASCADE'
+            });
         }
     }
 
