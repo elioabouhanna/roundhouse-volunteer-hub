@@ -1,10 +1,11 @@
 # Roundhouse Volunteer Hub
 
-Roundhouse Volunteer Hub is a web-based Volunteer Management Platform.
+Roundhouse Volunteer Hub is a web-based Volunteer Management Platform designed to manage volunteers, events, shifts, volunteer hours, and internal communication in one centralized system.
 
 ## Main Features
 
-- Staff login
+### Staff
+- Staff login and logout
 - Volunteer management
 - Search and filter volunteers
 - Event management
@@ -12,7 +13,15 @@ Roundhouse Volunteer Hub is a web-based Volunteer Management Platform.
 - Volunteer assignment
 - Volunteer hour tracking
 - Announcements
-- Dashboard
+- Staff dashboard
+
+### Volunteers
+- Volunteer login and logout
+- Personal volunteer account
+- Access to personal volunteer information
+- View assigned shifts
+- View volunteer hours and participation history
+- View announcements
 
 ## Technologies
 
@@ -22,7 +31,16 @@ Roundhouse Volunteer Hub is a web-based Volunteer Management Platform.
 - Node.js
 - Express.js
 - MySQL
+- Sequelize ORM
+- Session-based authentication
+- bcrypt password hashing
+
+## Database
+
+The application uses MySQL with Sequelize migrations and models. The database includes volunteers, volunteer accounts, staff users, skills, events, shifts, shift assignments, volunteer hours, and announcements.
 
 ## Project Management
 
 The project follows the Scrum methodology and uses Jira for backlog and sprint management.
+
+Git and GitHub are used for version control and collaboration.
