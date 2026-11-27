@@ -1,6 +1,27 @@
+
+# Dependencies
 node_modules/
+
+# Private environment variables
 .env
+.env.*
+!.env.example
+
+# Visual Studio files
 .vs/
 *.user
 *.suo
+
+# MySQL Workbench backups
 *.mwb.bak
+*.mwb.beforefix
+
+# Logs
+*.log
+
+# Test coverage
+coverage/
+
+# Operating system files
+.DS_Store
+Thumbs.db

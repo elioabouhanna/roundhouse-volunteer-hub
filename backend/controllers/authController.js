@@ -1,119 +1,153 @@
+
 const bcrypt = require("bcrypt");
+
 const {
     StaffUser,
     VolunteerAccount,
     Volunteer
 } = require("../models");
 
-exports.login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
 
-        if (!email || !password) {
+// Create a secure authenticated session
+async function createSession(req, userData) {
+
+    await new Promise((resolve, reject) => {
+        req.session.regenerate((err) => {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+
+    Object.assign(req.session, userData);
+
+    await new Promise((resolve, reject) => {
+        req.session.save((err) => {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+}
+
+
+// LOGIN
+exports.login = async (req, res) => {
+
+    try {
+
+        const { email, password } = req.body || {};
+
+        // Validate input
+        if (
+            typeof email !== "string" ||
+            typeof password !== "string" ||
+            !email.trim() ||
+            !password
+        ) {
             return res.redirect("/login?error=missing");
         }
 
-        // -------------------------------------------------
-        // 1. Try Staff Login
-        // -------------------------------------------------
+        const cleanEmail = email.trim();
+
+        if (cleanEmail.length > 150) {
+            return res.redirect("/login?error=invalid");
+        }
+
+
+        // 1. STAFF LOGIN
         const staffUser = await StaffUser.findOne({
-            where: { email: email.trim() }
+            where: { email: cleanEmail }
         });
 
         if (staffUser) {
+
             const passwordIsValid = await bcrypt.compare(
                 password,
                 staffUser.password_hash
             );
 
             if (passwordIsValid) {
-                return req.session.regenerate((err) => {
-                    if (err) {
-                        console.error(err);
-                        return res.status(500).send("Login error");
-                    }
 
-                    req.session.userId = staffUser.user_id;
-                    req.session.userName = staffUser.name;
-                    req.session.role = "staff";
-
-                    req.session.save((err) => {
-                        if (err) {
-                            console.error(err);
-                            return res.status(500).send("Login error");
-                        }
-
-                        return res.redirect("/");
-                    });
+                await createSession(req, {
+                    userId: staffUser.user_id,
+                    userName: staffUser.name,
+                    role: "staff"
                 });
+
+                return res.redirect("/");
             }
         }
 
-        // -------------------------------------------------
-        // 2. Try Volunteer Login
-        // -------------------------------------------------
-        const volunteerAccount = await VolunteerAccount.findOne({
-            where: { email: email.trim() },
-            include: [
-                {
-                    model: Volunteer,
-                    as: "volunteer"
-                }
-            ]
-        });
+
+        // 2. VOLUNTEER LOGIN
+        const volunteerAccount =
+            await VolunteerAccount.findOne({
+
+                where: { email: cleanEmail },
+
+                include: [
+                    {
+                        model: Volunteer,
+                        as: "volunteer"
+                    }
+                ]
+            });
+
 
         if (volunteerAccount) {
+
+            const volunteer = volunteerAccount.volunteer;
+
+            // Reject missing or inactive volunteer profiles
+            if (!volunteer || volunteer.status !== "active") {
+                return res.redirect("/login?error=invalid");
+            }
+
             const passwordIsValid = await bcrypt.compare(
                 password,
                 volunteerAccount.password_hash
             );
 
             if (passwordIsValid) {
-                return req.session.regenerate((err) => {
-                    if (err) {
-                        console.error(err);
-                        return res.status(500).send("Login error");
-                    }
 
-                    req.session.userId = volunteerAccount.account_id;
-                    req.session.volunteerId = volunteerAccount.volunteer_id;
-                    req.session.role = "volunteer";
-
-                    if (volunteerAccount.volunteer) {
-                        req.session.userName =
-                            `${volunteerAccount.volunteer.first_name} ${volunteerAccount.volunteer.last_name}`;
-                    } else {
-                        req.session.userName = "Volunteer";
-                    }
-
-                    req.session.save((err) => {
-                        if (err) {
-                            console.error(err);
-                            return res.status(500).send("Login error");
-                        }
-
-                        return res.redirect("/volunteer");
-                    });
+                await createSession(req, {
+                    userId: volunteerAccount.account_id,
+                    volunteerId: volunteerAccount.volunteer_id,
+                    userName:
+                        `${volunteer.first_name} ${volunteer.last_name}`,
+                    role: "volunteer"
                 });
+
+                return res.redirect("/volunteer");
             }
         }
 
-        // Neither staff nor volunteer credentials matched
+
+        // Invalid credentials
         return res.redirect("/login?error=invalid");
 
     } catch (error) {
-        console.error(error);
+
+        console.error("Login error:", error);
+
         return res.status(500).send("Internal server error");
     }
 };
 
+
+// LOGOUT
 exports.logout = (req, res) => {
+
     req.session.destroy((err) => {
+
         if (err) {
-            console.error(err);
+
+            console.error("Logout error:", err);
+
             return res.status(500).send("Logout error");
         }
 
-        res.redirect("/login");
+        res.clearCookie("connect.sid", { path: "/" });
+
+        return res.redirect("/login");
     });
 };
